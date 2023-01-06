@@ -1,0 +1,62 @@
+import os
+from nltk.corpus import stopwords
+import string
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+
+os.chdir("C:/Users/hugou/Downloads/")
+
+import pandas as pd
+
+data = pd.read_excel("df_avis2.xlsx")
+
+
+#liste des ponctuations
+ponctuations = list(string.punctuation)
+
+#liste des chiffres
+chiffres = list("0123456789")
+
+#outil pour procéder à la lemmatisation - attention à charger le cas échéant
+#nltk.download('wordnet')
+lem = WordNetLemmatizer()
+
+#liste des mots vides
+mots_vides = stopwords.words("french")
+tre = ["très"]
+mots_vides = mots_vides + tre
+#********************************
+#fonction pour nettoyage document (chaîne de caractères)
+#le document revient sous la forme d'une liste de tokens
+#********************************
+def nettoyage_doc(doc_param):
+    #passage en minuscule
+    doc = [msg.lower() for msg in doc_param]
+    #retrait des ponctuations
+    doc = "".join([w for w in list(doc) if not w in ponctuations])
+    #retirer les chiffres
+    doc = "".join([w for w in list(doc) if not w in chiffres])
+    #transformer le document en liste de termes par tokénisation
+    doc = word_tokenize(doc, language = "french")
+    #lematisation de chaque terme
+    doc = [lem.lemmatize(terme) for terme in doc]
+    #retirer les stopwords
+    doc = [w for w in doc if not w in mots_vides]
+    #retirer les termes de moins de 3 caractères
+    doc = [w for w in doc if len(w)>=3]
+    #fin
+    return doc
+
+     
+avis = nettoyage_doc(data["commentaire"])
+
+
+import matplotlib.pyplot as plt
+
+from wordcloud import WordCloud
+
+def WC(com):
+    wordcloud = WordCloud().generate(str(com))
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    return plt.show()
