@@ -6,54 +6,63 @@ Created on Wed Jan  4 16:46:18 2023
 """
 
 #numpy
-import numpy
-import nltk
-#modification du dossier de travail
 import os
+import numpy
+import pandas as pd 
+
 os.chdir("C:/Users/hugou/Downloads/")
 
-import pandas as pd
+data = pd.read_csv("df_aviscsv.csv", encoding='latin=1', sep = ";")
+liste_avis = data.commentaire.to_list()
 
-data = pd.read_excel("df_avis2.xlsx")
 
-avis = data.commentaire.to_list()
-
-avis1 = [msg.lower() for msg in avis]
-
-#retirer la ponctuation
 import string
 ponctuations = list(string.punctuation)
-avis2 = ["".join([w for w in list(msg) if not w in ponctuations]) for msg in avis1]
 
-#retirer les chiffres 
+#liste des chiffres
 chiffres = list("0123456789")
-avis3 = ["".join([w for w in list(msg) if not w in chiffres]) for msg in avis2]
 
-from nltk.stem import WordNetLemmatizer
-lem = WordNetLemmatizer()
+#outil pour procéder à la lemmatisation - attention à charger le cas échéant
+#nltk.download('wordnet')
+from french_lefff_lemmatizer.french_lefff_lemmatizer import FrenchLefffLemmatizer
+lem = FrenchLefffLemmatizer()
 
 #pour la tokénisation
-nltk.download('punkt')
 from nltk.tokenize import word_tokenize
-avis4 = [word_tokenize(msg) for msg in avis3]
-
 
 #liste des mots vides
-nltk.download('stopwords')
 from nltk.corpus import stopwords
 mots_vides = stopwords.words("french")
-tre = ["très"]
-mots_vides = mots_vides + tre
-avis5 = [[w for w in msg if not w in mots_vides] for msg in avis4]
 
-avis6 = [[w for w in msg if len(w)>=3] for msg in avis5]
+#********************************
+#fonction pour nettoyage document (chaîne de caractères)
+#le document revient sous la forme d'une liste de tokens
+#********************************
+def nettoyage_doc(doc_param):
+    #passage en minuscule
+    doc = [msg.lower() for msg in doc_param]
+    #retrait des ponctuations
+    doc = ["".join([w for w in list(msg) if not w in ponctuations]) for msg in doc]
+    #retirer les chiffres
+    doc = "".join([w for w in list(doc) if not w in chiffres])
+    #transformer le document en liste de termes par tokénisation
+    doc = word_tokenize(doc)
+    #lematisation de chaque terme
+    doc = [lem.lemmatize(terme) for terme in doc]
+    #retirer les stopwords
+    doc = [w for w in doc if not w in mots_vides]
+    #retirer les termes de moins de 3 caractères
+    doc = [w for w in doc if len(w)>=3]
+    #fin
+    return doc
+
+mots_propres = nettoyage_doc(liste_avis)
 
 
 from gensim.models import Word2Vec
-modele = Word2Vec(avis6,vector_size=100,window=3,min_count=1, epochs = 100)
+modele = Word2Vec(mots_propres,vector_size=100,window=3,min_count=1, epochs = 100)
 words = modele.wv
 
-words.similarity("hôtel","cher")
 
 df = pd.DataFrame(words.vectors,index=words.key_to_index.keys())
 
@@ -165,4 +174,4 @@ def my_cah_from_doc2vec(corpus,trained,seuil=1.0,nbTermes=7):
     #renvoyer l'indicateur d'appartenance aux groupes
     return grCAH, mat
 
-g1,mat1 = my_cah_from_doc2vec(avis6,words,seuil=10)
+g1,mat1 = my_cah_from_doc2vec(mots_propres,words,seuil=10)
