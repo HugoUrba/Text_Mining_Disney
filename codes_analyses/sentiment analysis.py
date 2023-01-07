@@ -15,7 +15,7 @@ import plotly.express as px
 
 os.chdir("C:/Users/hugou/Downloads/")
 
-data = pd.read_excel("df_avis2.xlsx")
+data = pd.read_csv("df_aviscsv.csv", encoding='latin=1', sep = ";")
 
 data["commentaire"]= data["commentaire"].str.lower()
 
@@ -64,8 +64,9 @@ senti_base_df = data.drop(["CommentAferPreproc", "Word_Tok"], axis = 1)
 
 Number_sentiment = senti_base_df.groupby(["sentiment"]).count().reset_index().reset_index(drop=True)
 Number_sentiment = Number_sentiment.iloc[:,:2]
+Number_sentiment.rename(columns={'note':'nombre de commentaire'}, inplace=True)
 
 def sentiPie (df):
-    fig = px.pie(df, values=df[:,1], names=df[:,0], title = "Analyse des sentiments")
+    fig = px.pie(df, values=df.iloc[:,1], names=df.iloc[:,0], title = "Analyse des sentiments")
     return fig.show()
 
