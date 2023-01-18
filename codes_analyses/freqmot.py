@@ -12,14 +12,13 @@ import os
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
 import string
-from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
 os.chdir("C:/Users/hugou/Downloads/")
 
 import pandas as pd
 
-data = pd.read_excel("df_avis2.xlsx")
+data = pd.read_csv("df_aviscsv.csv", encoding='latin=1', sep = ";")
 
 
 #liste des ponctuations

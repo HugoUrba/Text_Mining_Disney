@@ -70,3 +70,6 @@ def sentiPie (df):
     fig = px.pie(df, values=df.iloc[:,1], names=df.iloc[:,0], title = "Analyse des sentiments")
     return fig.show()
 
+print(sentiPie(Number_sentiment))
+import iplot
+iplot(sentiPie(Number_sentiment))

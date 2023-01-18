@@ -33,7 +33,8 @@ from nltk.tokenize import word_tokenize
 #liste des mots vides
 from nltk.corpus import stopwords
 mots_vides = stopwords.words("french")
-
+tre = ["très","plus","hôtel"]
+mots_vides = mots_vides + tre
 #********************************
 #fonction pour nettoyage document (chaîne de caractères)
 #le document revient sous la forme d'une liste de tokens
@@ -56,27 +57,25 @@ def nettoyage_doc(doc_param):
     #fin
     return doc
 
-mots_propres = nettoyage_doc(liste_avis)
+def nettoyage_corpus(corpus,vire_vide=True):
+    #output
+    output = [nettoyage_doc(doc) for doc in corpus if ((len(doc) > 0) or (vire_vide == False))]
+    return output
 
+mots_propres = nettoyage_corpus(liste_avis)
 
+#création modèle
 from gensim.models import Word2Vec
 modele = Word2Vec(mots_propres,vector_size=100,window=3,min_count=1, epochs = 100)
 words = modele.wv
 
 
-df = pd.DataFrame(words.vectors,index=words.key_to_index.keys())
-
-
-#graphique dans le plan
 import matplotlib.pyplot as plt
-#plt.scatter(dfListe.V1,dfListe.V2,s=0.5)
-#for i in range(dfListe.shape[0]):
-    #plt.annotate(dfListe.index[i],(dfListe.V1[i],dfListe.V2[i]))
-#plt.show()
 
 from scipy.cluster.hierarchy import dendrogram, linkage,fcluster
 #pour transformation en MDT
 from sklearn.feature_extraction.text import CountVectorizer
+
 
 def my_doc_2_vec(doc,trained):
     #dimension de représentation
@@ -174,4 +173,10 @@ def my_cah_from_doc2vec(corpus,trained,seuil=1.0,nbTermes=7):
     #renvoyer l'indicateur d'appartenance aux groupes
     return grCAH, mat
 
-g1,mat1 = my_cah_from_doc2vec(mots_propres,words,seuil=10)
+g1,mat1 = my_cah_from_doc2vec(mots_propres,words,seuil = 9)
+
+#similarité des mots
+def wordsimi (terme, nbterme = 5):
+    return words.most_similar(terme,topn=nbterme)
+
+wordsimi("chambre")
