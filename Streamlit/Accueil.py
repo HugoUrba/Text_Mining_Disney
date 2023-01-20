@@ -23,12 +23,11 @@ from french_lefff_lemmatizer.french_lefff_lemmatizer import FrenchLefffLemmatize
 from gensim.models import Word2Vec
 import Fonctions as ft
 
-
-data = pd.read_csv("/Users/leo/Downloads/Textmining/disney.csv",encoding='latin-1',sep = ";")
+data = pd.read_csv("disney.csv",encoding='latin-1',sep = ";")
 
 
 st.set_page_config(page_title="Image Example", page_icon=":camera:", layout="wide")
-image_file = "/Users/leo/Documents/Streamlit/chateau.jpeg"
+image_file = "chateau.jpeg"
 image = Image.open(image_file)
 st.image(image, use_column_width=True)
 
@@ -37,7 +36,7 @@ st.markdown("Cette application crée avec streamlit permet de visualiser nos ana
 st.subheader('Google Reviews Dataset ')
 
 # Données 
-df = pd.read_csv("/Users/leo/Documents/Streamlit/disney.csv",encoding='latin-1',sep = ";")
+df = pd.read_csv("disney.csv",encoding='latin-1',sep = ";")
 st.dataframe(df)
 
 # Graphique histograme des notes moyennes 
@@ -47,5 +46,5 @@ st.bar_chart(df.note.value_counts())
 #Graphique nuage des mots 
 st.title("Nuage de mots")
 avis = ft.nettoyage_doc(df["commentaire"])
-ft.WC(avis,mask= np.array(Image.open("/Users/leo/Documents/Streamlit/cloud.png")))
+ft.WC(avis,mask= np.array(Image.open("cloud.png")))
 st.set_option('deprecation.showPyplotGlobalUse', False)
